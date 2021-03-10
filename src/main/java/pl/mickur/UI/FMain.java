@@ -28,6 +28,13 @@ import javabootcamp.Author;
 import javabootcamp.Song;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.BoxLayout;
 
 public class FMain {
 
@@ -146,7 +153,7 @@ public class FMain {
 	private List<Album> listAlbums;
 	
 	public FMain() {
-		initialize();
+		
 		
 		listSongs = new ArrayList<Song>();
 		listAuthors = new ArrayList<Author>();
@@ -157,6 +164,8 @@ public class FMain {
 //		printSongs();
 //		printAuthors();
 //		printAlbums();
+		
+		initialize();
 		
 		
 	}
@@ -201,6 +210,32 @@ public class FMain {
 		
 		JPanel bodyPanel = new JPanel();
 		frame.getContentPane().add(bodyPanel, BorderLayout.CENTER);
+		bodyPanel.setLayout(new BorderLayout(0, 0));
+		
+		
+		
+		JPanel panel = new JPanel();
+		
+		JScrollPane scrollPane = new JScrollPane(panel);
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.setPreferredSize(new Dimension(30, 30));
+		bodyPanel.add(scrollPane);
+		
+//		scrollPane.se
+		
+//		PanelSong panelSong = new PanelSong();
+//		bodyPanel.add(panelSong);
+		
+		for (Song s : listSongs) {
+			String title = s.getTitle();
+            Author author = s.getAuthor();
+            Album album = s.getAlbum();
+            String category = s.getCategory();
+            int votes = s.getVotes();
+			PanelSong panelSong = new PanelSong(title, author, album, category, votes);
+			panel.add(panelSong);
+		}
 	}
 
 }
