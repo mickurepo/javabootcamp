@@ -6,6 +6,7 @@ public class Song {
 	private Album album;
 	private String category;
 	private int votes;
+	private boolean canVote;
 	public String getTitle() {
 		return title;
 	}
@@ -17,8 +18,17 @@ public class Song {
 		this.album = album;
 		this.category = category;
 		this.votes = votes;
+		this.canVote = true;
 	}
 	
+	public boolean isCanVote() {
+		return canVote;
+	}
+
+	public void setCanVote(boolean canVote) {
+		this.canVote = canVote;
+	}
+
 	public void setTitle(String title) {
 		this.title = title;
 	}

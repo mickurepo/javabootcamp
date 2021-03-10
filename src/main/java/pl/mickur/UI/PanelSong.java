@@ -15,17 +15,36 @@ import javax.swing.border.TitledBorder;
 
 import javabootcamp.Album;
 import javabootcamp.Author;
+import javabootcamp.Song;
 
 import javax.swing.border.EtchedBorder;
 import java.awt.Color;
 import java.awt.Font;
+import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JPopupMenu;
 
 public class PanelSong extends JPanel {
 
 	/**
 	 * Create the panel.
 	 */
-	public PanelSong(String title, Author author, Album album, String category, int votes) {
+	protected JButton btnVote;
+	protected JMenuItem jMenuItem;
+//	public PanelSong(String title, Author author, Album album, String category, int votes) {
+	public PanelSong(Song s) {
+		
+		String title = s.getTitle();
+		Author author = s.getAuthor();
+		Album album = s.getAlbum();
+		String category = s.getCategory();
+		int votes = s.getVotes();
+		
+		
 		setBorder(new EmptyBorder(0, 0, 17, 0));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
@@ -79,12 +98,32 @@ public class PanelSong extends JPanel {
 		add(pVotes);
 		pVotes.setLayout(new BorderLayout(0, 0));
 		
+		
+		
+		JPanel pVotesContainer = new JPanel();
+		pVotes.add(pVotesContainer, BorderLayout.NORTH);
+		pVotesContainer.setLayout(new BorderLayout(0, 0));
+		
 		JLabel lblVotes = new JLabel("Votes");
 		lblVotes.setText(Integer.toString(votes));
 		lblVotes.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		lblVotes.setHorizontalAlignment(SwingConstants.CENTER);
-		pVotes.add(lblVotes);
+		pVotesContainer.add(lblVotes, BorderLayout.SOUTH);
+		
+		btnVote = new JButton("Vote");
+		pVotesContainer.add(btnVote, BorderLayout.NORTH);
+		btnVote.setEnabled(s.isCanVote());
+		
+		JPopupMenu popupMenu = new JPopupMenu();
+//		popupMenu.setLabel("Clear Votes");
+//		popupMenu.add("Clear votes");
+//		pVotesContainer.add(popupMenu, BorderLayout.WEST);
+		jMenuItem = new JMenuItem("Clear votes");
+		popupMenu.add(jMenuItem);
+		pVotes.setComponentPopupMenu(popupMenu);
 
+		
+		
 	}
 
 }

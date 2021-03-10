@@ -224,16 +224,41 @@ public class FMain {
 	}
 	private void showSongs() {
 		panelSongs.removeAll();
-		for (Song s : listSongs) {
-			String title = s.getTitle();
-            Author author = s.getAuthor();
-            Album album = s.getAlbum();
-            String category = s.getCategory();
-            int votes = s.getVotes();
-			PanelSong panelSong = new PanelSong(title, author, album, category, votes);
+		for (final Song s : listSongs) {
+//			String title = s.getTitle();
+//            Author author = s.getAuthor();
+//            Album album = s.getAlbum();
+//            String category = s.getCategory();
+//            int votes = s.getVotes();
+			final PanelSong panelSong = new PanelSong(s);
 			panelSongs.add(panelSong);
+			panelSong.btnVote.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					panelSong.btnVote.setEnabled(false);
+					s.setVotes(s.getVotes()+1);
+					s.setCanVote(false);
+					showSongs();
+					refreshFrame();
+				}
+			});
+			panelSong.jMenuItem.addActionListener(new ActionListener() {
+				
+				public void actionPerformed(ActionEvent e) {
+					s.setVotes(0);
+					s.setCanVote(true);
+					showSongs();
+					refreshFrame();
+				}
+			});
 		}
-		
+		refreshFrame();
+	}
+	
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void refreshFrame() {
 		SwingUtilities.updateComponentTreeUI(frame);
 		frame.invalidate();
 		frame.validate();
@@ -241,11 +266,6 @@ public class FMain {
 		panelSongs.revalidate();
 		panelSongs.repaint();
 	}
-	
-
-	/**
-	 * Initialize the contents of the frame.
-	 */
 	private JPanel panelSongs;
 	private void initialize() {
 		frame = new JFrame();
@@ -263,6 +283,19 @@ public class FMain {
 			}
 		});
 		headerPanel.add(btnLoad);
+		
+		JButton btnClearVotes = new JButton("Clear all votes");
+		btnClearVotes.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				for (Song s : listSongs) {
+					s.setVotes(0);
+					s.setCanVote(true);
+				}
+				showSongs();
+				refreshFrame();
+			}
+		});
+		headerPanel.add(btnClearVotes);
 		
 		JPanel footerPanel = new JPanel();
 		frame.getContentPane().add(footerPanel, BorderLayout.SOUTH);
