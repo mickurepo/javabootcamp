@@ -32,9 +32,14 @@ import java.awt.Dimension;
 
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.BoxLayout;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.ActionEvent;
 
 public class FMain {
 
@@ -59,7 +64,7 @@ public class FMain {
 	/**
 	 * Create the application.
 	 */
-	private void selectFileWindow() {
+	private void showFileWindow() {
 		
 		JFileChooser fileChooser = new JFileChooser();
 		
@@ -141,11 +146,44 @@ public class FMain {
 		return album;
 	}
 	
-	private void addSongByStrings(String title, String authorName, String albumName, String category, String votes) {
+	private boolean addSongByStrings(String title, String authorName, String albumName, String category, String votes) {
 		Author author = getAuthorByName(authorName);
 		Album album = getAlbumByAuthorAndName(author, albumName);
 		Song song = new Song(title, author, album, category, Integer.parseInt(votes));
-		listSongs.add(song);
+		
+		Song existingSameSong = getSongByStrings(song);
+		if (existingSameSong != null) {//means exists same song
+			existingSameSong.setVotes(existingSameSong.getVotes()+song.getVotes());
+			return true;
+		}
+		else 
+			listSongs.add(song);
+		return false;
+			
+	}
+	
+	private Song getSongByStrings(Song song) {
+		String title = song.getTitle();
+        String author = song.getAuthor().getName();
+        String album = song.getAlbum().getName();
+//        String category = song.getCategory();
+//        int votes = song.getVotes();
+        
+        for (Song s : listSongs) {
+        	String sTitle = s.getTitle();
+        	String sAuthor = s.getAuthor().getName();
+        	String sAlbum = s.getAlbum().getName();
+//        	String sCategory = s.getCategory();
+//        	int sVotes = s.getVotes();
+        	
+        	if (sTitle.equals(title) &&
+        		sAuthor.equals(author) &&
+        		sAlbum.equals(album))
+//        		sCategory.equals(category) &&
+//        		sVotes == sVotes)
+        		return s;
+        }
+		return null;
 	}
 	
 	private List<Song> listSongs;
@@ -153,21 +191,13 @@ public class FMain {
 	private List<Album> listAlbums;
 	
 	public FMain() {
-		
-		
 		listSongs = new ArrayList<Song>();
 		listAuthors = new ArrayList<Author>();
 		listAlbums = new ArrayList<Album>();
 		
-		selectFileWindow();
-		
-//		printSongs();
-//		printAuthors();
-//		printAlbums();
-		
 		initialize();
-		
-		
+		showFileWindow();
+		showSongs();
 	}
 
 	private void printSongs() {
@@ -192,41 +222,8 @@ public class FMain {
 //			}
 		}
 	}
-	
-
-	/**
-	 * Initialize the contents of the frame.
-	 */
-	private void initialize() {
-		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 300);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		JPanel headerPanel = new JPanel();
-		frame.getContentPane().add(headerPanel, BorderLayout.NORTH);
-		
-		JPanel footerPanel = new JPanel();
-		frame.getContentPane().add(footerPanel, BorderLayout.SOUTH);
-		
-		JPanel bodyPanel = new JPanel();
-		frame.getContentPane().add(bodyPanel, BorderLayout.CENTER);
-		bodyPanel.setLayout(new BorderLayout(0, 0));
-		
-		
-		
-		JPanel panel = new JPanel();
-		
-		JScrollPane scrollPane = new JScrollPane(panel);
-		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.setPreferredSize(new Dimension(30, 30));
-		bodyPanel.add(scrollPane);
-		
-//		scrollPane.se
-		
-//		PanelSong panelSong = new PanelSong();
-//		bodyPanel.add(panelSong);
-		
+	private void showSongs() {
+		panelSongs.removeAll();
 		for (Song s : listSongs) {
 			String title = s.getTitle();
             Author author = s.getAuthor();
@@ -234,8 +231,97 @@ public class FMain {
             String category = s.getCategory();
             int votes = s.getVotes();
 			PanelSong panelSong = new PanelSong(title, author, album, category, votes);
-			panel.add(panelSong);
+			panelSongs.add(panelSong);
 		}
+		
+		SwingUtilities.updateComponentTreeUI(frame);
+		frame.invalidate();
+		frame.validate();
+		frame.repaint();
+		panelSongs.revalidate();
+		panelSongs.repaint();
+	}
+	
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private JPanel panelSongs;
+	private void initialize() {
+		frame = new JFrame();
+		frame.setBounds(100, 100, 450, 520);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		JPanel headerPanel = new JPanel();
+		frame.getContentPane().add(headerPanel, BorderLayout.NORTH);
+		
+		JButton btnLoad = new JButton("Load Songs");
+		btnLoad.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				showFileWindow();
+				showSongs();
+			}
+		});
+		headerPanel.add(btnLoad);
+		
+		JPanel footerPanel = new JPanel();
+		frame.getContentPane().add(footerPanel, BorderLayout.SOUTH);
+		
+		JButton btnAddSong = new JButton("Add Song");
+		btnAddSong.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				final FNewSong fNewSong = new FNewSong();
+//				fNewSong.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				fNewSong.pack();
+				fNewSong.setVisible(true);
+				fNewSong.btnAddSong.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						String title = fNewSong.tfTitle.getText();
+						String author = fNewSong.tfAuthor.getText();
+						String album = fNewSong.tfAlbum.getText();
+						String category = fNewSong.tfCategory.getText();
+						int votes = (Integer) fNewSong.spinnerVotes.getValue();
+						
+						if (!title.isEmpty() &&
+							!author.isEmpty() &&
+							!album.isEmpty() &&
+							!category.isEmpty()) {
+							if (addSongByStrings(title, author, album, category, Integer.toString(votes))) {
+								JOptionPane.showMessageDialog(fNewSong, "This song already exists in database.");
+							}
+							else {
+								fNewSong.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+								showSongs();
+								JOptionPane.showMessageDialog(fNewSong, "The song added succesfully.");
+							}
+						}
+						else {
+							JOptionPane.showMessageDialog(fNewSong, "The data imput is incorrect.");
+						}
+							
+						
+						
+						
+					}
+				});
+			}
+		});
+		footerPanel.add(btnAddSong);
+		
+		JPanel bodyPanel = new JPanel();
+		frame.getContentPane().add(bodyPanel, BorderLayout.CENTER);
+		bodyPanel.setLayout(new BorderLayout(0, 0));
+
+		panelSongs = new JPanel();
+		
+		JScrollPane scrollPane = new JScrollPane(panelSongs);
+		panelSongs.setLayout(new BoxLayout(panelSongs, BoxLayout.Y_AXIS));
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.setPreferredSize(new Dimension(30, 30));
+		bodyPanel.add(scrollPane);
+		
+		
+		
 	}
 
 }
