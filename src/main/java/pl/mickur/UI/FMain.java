@@ -1,9 +1,13 @@
 package pl.mickur.UI;
 
 import java.awt.EventQueue;
+import java.awt.Frame;
+import java.awt.Window;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.JFileChooser;
@@ -26,6 +30,7 @@ import org.xml.sax.SAXException;
 import javabootcamp.Album;
 import javabootcamp.Author;
 import javabootcamp.Song;
+import javabootcamp.SongsVotesComparator;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -34,6 +39,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.BoxLayout;
@@ -197,11 +203,11 @@ public class FMain {
 		
 		initialize();
 		showFileWindow();
-		showSongs();
+		showSongs(listSongs, panelSongs);
 	}
 
-	private void printSongs() {
-		for (Song s : listSongs) {
+	private void printSongs(List<Song> list) {
+		for (Song s : list) {
 			System.out.println(s.getTitle());
 			
 		}
@@ -217,28 +223,31 @@ public class FMain {
 	private void printAuthors() {
 		for (Author author : listAuthors) {
 			System.out.println(author.getName());
-//			for (Album album : author.getAlbums()) {
-//				System.out.println(album.getName());
-//			}
 		}
 	}
-	private void showSongs() {
-		panelSongs.removeAll();
-		for (final Song s : listSongs) {
-//			String title = s.getTitle();
-//            Author author = s.getAuthor();
-//            Album album = s.getAlbum();
-//            String category = s.getCategory();
-//            int votes = s.getVotes();
+	private void showSongs(List<Song> list, JPanel panel) {
+		panel.removeAll();
+//		JFrame f = null;
+//		JDialog d = null;
+//		if (SwingUtilities.getWindowAncestor(panel).getClass().getName().equals("javax.swing.JFrame"))
+//			f = (JFrame) SwingUtilities.getWindowAncestor(panel);
+//		else if (SwingUtilities.getWindowAncestor(panel).getClass().getName().equals("javax.swing.JDialog"))
+//			d = (JDialog) SwingUtilities.getWindowAncestor(panel);
+		Window window = SwingUtilities.getWindowAncestor(panel);
+		
+		
+		for (final Song s : list) {
 			final PanelSong panelSong = new PanelSong(s);
-			panelSongs.add(panelSong);
+			panel.add(panelSong);
 			panelSong.btnVote.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					panelSong.btnVote.setEnabled(false);
+//					panelSong.btnVote.setEnabled(false);
 					s.setVotes(s.getVotes()+1);
 					s.setCanVote(false);
-					showSongs();
-					refreshFrame();
+					
+					showSongs(list, panel);
+					showSongs(listSongs, panelSongs);
+					refreshFrame(window);
 				}
 			});
 			panelSong.jMenuItem.addActionListener(new ActionListener() {
@@ -246,23 +255,27 @@ public class FMain {
 				public void actionPerformed(ActionEvent e) {
 					s.setVotes(0);
 					s.setCanVote(true);
-					showSongs();
-					refreshFrame();
+					showSongs(list, panel);
+					showSongs(listSongs, panelSongs);
+					refreshFrame(window);
 				}
 			});
 		}
-		refreshFrame();
+		refreshFrame(window);
 	}
 	
-
-	/**
-	 * Initialize the contents of the frame.
-	 */
-	private void refreshFrame() {
-		SwingUtilities.updateComponentTreeUI(frame);
-		frame.invalidate();
-		frame.validate();
-		frame.repaint();
+	private List<Song> getSortedListSongsByVotes() {
+		List<Song> sortedListSongs = new ArrayList<Song>(listSongs);
+		Collections.sort(sortedListSongs, new SongsVotesComparator());
+		printSongs(sortedListSongs);
+		return sortedListSongs;
+	}
+	
+	private void refreshFrame(Window window) {
+		SwingUtilities.updateComponentTreeUI(window);
+		window.invalidate();
+		window.validate();
+		window.repaint();
 		panelSongs.revalidate();
 		panelSongs.repaint();
 	}
@@ -279,7 +292,7 @@ public class FMain {
 		btnLoad.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				showFileWindow();
-				showSongs();
+				showSongs(listSongs, panelSongs);
 			}
 		});
 		headerPanel.add(btnLoad);
@@ -291,11 +304,47 @@ public class FMain {
 					s.setVotes(0);
 					s.setCanVote(true);
 				}
-				showSongs();
-				refreshFrame();
+				showSongs(listSongs, panelSongs);
 			}
 		});
 		headerPanel.add(btnClearVotes);
+		
+		JButton btnRating = new JButton("Rating");
+		btnRating.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				List<Song> sortedListSongs;
+				sortedListSongs = getSortedListSongsByVotes();
+				FRating fRating = new FRating();				
+				showSongs(sortedListSongs, fRating.getPanelSongs());
+				fRating.setModal(true);
+				fRating.setVisible(true);
+				
+				
+//				fewegw fewegw = new fewegw();
+//				fewegw.setModal(true);
+//				fewegw.setVisible(true);
+				
+//				final JDialog frame = new JDialog(frame, "gewweg", true);
+//				frame.getContentPane().add(panel);
+//				frame.pack();
+//				frame.setVisible(true);
+				
+				
+//				final JDialog jDialog = new JDialog(frame, "fwwfe", true);
+//				jDialog.getContentPane().add(fRating);
+//				jDialog.setVisible(true);
+				
+				
+//				fRating.pack();
+			}
+		});
+		headerPanel.add(btnRating);
+		
+		JButton btnTop10 = new JButton("Top 10");
+		headerPanel.add(btnTop10);
+		
+		JButton btnTop3 = new JButton("Top 3");
+		headerPanel.add(btnTop3);
 		
 		JPanel footerPanel = new JPanel();
 		frame.getContentPane().add(footerPanel, BorderLayout.SOUTH);
@@ -324,17 +373,13 @@ public class FMain {
 							}
 							else {
 								fNewSong.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-								showSongs();
+								showSongs(listSongs, panelSongs);
 								JOptionPane.showMessageDialog(fNewSong, "The song added succesfully.");
 							}
 						}
 						else {
 							JOptionPane.showMessageDialog(fNewSong, "The data imput is incorrect.");
 						}
-							
-						
-						
-						
 					}
 				});
 			}
@@ -352,9 +397,5 @@ public class FMain {
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setPreferredSize(new Dimension(30, 30));
 		bodyPanel.add(scrollPane);
-		
-		
-		
 	}
-
 }
