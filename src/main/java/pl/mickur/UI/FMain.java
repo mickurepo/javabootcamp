@@ -1,42 +1,28 @@
 package pl.mickur.UI;
 
 import java.awt.EventQueue;
-import java.awt.Frame;
 import java.awt.Window;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.text.Document;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.Element;
-import java.io.File;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.parsers.*;
-import java.io.*;
-
-import org.xml.sax.SAXException;
-
-import com.google.common.base.CaseFormat;
 
 import javabootcamp.Album;
 import javabootcamp.Author;
 import javabootcamp.Category;
 import javabootcamp.Song;
+import javabootcamp.SongHelper;
 import javabootcamp.SongsVotesComparator;
 
 import java.awt.BorderLayout;
@@ -46,13 +32,26 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.BoxLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.ActionEvent;
+
+import com.opencsv.CSVReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Iterator;
+import java.util.List;
 
 public class FMain {
 
@@ -89,8 +88,44 @@ public class FMain {
 //		    System.out.println("Selected file: " + selectedFile.getAbsolutePath());
 		    
 		    if (selectedFile.canRead()) {
-		    	parseXML(selectedFile);
+		    	String extension = FilenameUtils.getExtension(selectedFile.getName());
+		    	if (extension.equals("xml")) {
+		    		parseXML(selectedFile);		    		
+		    	}
+		    	else if (extension.equals("csv")) {
+		    		parseCSV(selectedFile);
+		    	}
 		    }
+		}
+	}
+	
+	
+	
+	private void parseCSV(File file) {
+		final String SAMPLE_CSV_FILE_PATH = file.getAbsolutePath();
+
+		try (
+			Reader reader = Files.newBufferedReader(Paths.get(SAMPLE_CSV_FILE_PATH));
+		) {
+			CsvToBean<SongHelper> csvToBean = new CsvToBeanBuilder(reader)
+					.withType(SongHelper.class)
+					.withIgnoreLeadingWhiteSpace(true)
+					.build();
+
+			List<SongHelper> csvSongs = csvToBean.parse();
+
+			for(SongHelper csvSong: csvSongs) {
+				String title = csvSong.getTitle();
+				String authorName = csvSong.getAuthor();
+				String albumName = csvSong.getAlbum();
+				String categoryName = csvSong.getCategory();
+				String votes = csvSong.getVotes();
+				
+				addSongByStrings(title, authorName, albumName, categoryName, votes);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
