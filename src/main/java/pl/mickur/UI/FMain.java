@@ -3,6 +3,8 @@ package pl.mickur.UI;
 import java.awt.EventQueue;
 import java.awt.Window;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +14,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
@@ -23,6 +28,7 @@ import javabootcamp.Author;
 import javabootcamp.Category;
 import javabootcamp.Song;
 import javabootcamp.SongHelper;
+import javabootcamp.SongsHelper;
 import javabootcamp.SongsVotesComparator;
 
 import java.awt.BorderLayout;
@@ -354,7 +360,12 @@ public class FMain {
 		fRating.getBtnSaveRaport().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (fRating.getExtension().equals("XML")) {
-//					saveToXml(sortedListSongs);
+					try {
+						saveToXml(sortedListSongs);
+					} catch (FileNotFoundException | JAXBException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 				else if (fRating.getExtension().equals("CSV")) {
 					try {
@@ -371,9 +382,17 @@ public class FMain {
 	}
 	private void saveToCsv(List<Song> list) throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
 
-		try (
-	            Writer writer = Files.newBufferedWriter(Paths.get("d:/f.csv"));
-	        ) {
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle("Specify a file to save");   
+		 
+		int userSelection = fileChooser.showSaveDialog(frame);
+		File fileToSave = null;
+		if (userSelection == JFileChooser.APPROVE_OPTION) {
+		    fileToSave = fileChooser.getSelectedFile();
+		    
+		    try (
+		            Writer writer = Files.newBufferedWriter(Paths.get(fileToSave.getAbsolutePath()));
+		        ) {
 	            StatefulBeanToCsv<SongHelper> beanToCsv = new StatefulBeanToCsvBuilder(writer)
 	                    .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
 	                    .build();
@@ -393,8 +412,95 @@ public class FMain {
 	            
 	            beanToCsv.write(mySongs);
 	        }
+		}
 		
 	}
+	private void saveToXml(List<Song> list) throws FileNotFoundException, JAXBException {
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle("Specify a file to save");   
+		 
+		int userSelection = fileChooser.showSaveDialog(frame);
+		File fileToSave = null;
+		if (userSelection == JFileChooser.APPROVE_OPTION) {
+		    fileToSave = fileChooser.getSelectedFile();
+		    
+			ArrayList<SongHelper> listSongHelpers = new ArrayList<SongHelper>();
+			for (Song s : list) {
+		    	String title = s.getTitle();
+		    	String author = s.getAuthor().getName();
+		    	String album = s.getAlbum().getName();
+		    	String category = s.getCategory().toString();
+		    	String votes = Integer.toString(s.getVotes());
+		    	
+		    	SongHelper songHelper = new SongHelper(title, author, album, category, votes);
+		    	listSongHelpers.add(songHelper);
+		    }
+			
+			SongsHelper songsHelper = new SongsHelper();
+			songsHelper.setSongHelpers(listSongHelpers);
+			
+			JAXBContext jaxbContext = JAXBContext.newInstance(SongsHelper.class);
+		    Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+		 
+		    jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		     
+	//	    jaxbMarshaller.marshal(songsHelper, System.out);
+		    jaxbMarshaller.marshal(songsHelper, fileToSave);
+		}
+		
+		
+		
+		/*
+		JAXBContext contextObj = JAXBContext.newInstance(SongHelper.class);  
+		  
+	    Marshaller marshallerObj = contextObj.createMarshaller();  
+	    marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);  
+	  
+	    ArrayList<SongHelper> listSongHelpers = new ArrayList<SongHelper>();
+
+	    for (Song s : list) {
+	    	String title = s.getTitle();
+	    	String author = s.getAuthor().getName();
+	    	String album = s.getAlbum().getName();
+	    	String category = s.getCategory().toString();
+	    	String votes = Integer.toString(s.getVotes());
+	    	
+	    	SongHelper songHelper = new SongHelper(title, author, album, category, votes);
+	    	listSongHelpers.add(songHelper);
+	    	
+	    }
+	    marshallerObj.marshal(listSongHelpers, new FileOutputStream("c:/Users/mickur/Documents/question.xml"));
+	    */
+		
+//		SongHelper songHelper = new SongHelper("fweefw","GWegwe","wgweg","gwewge","gwwege");
+        //Method which uses JAXB to convert object to XML
+		/*try
+        {
+            //Create JAXB Context
+//			JAXBContext jaxbContext = JAXBContext.newInstance(SongHelper.class);
+			JAXBContext jaxbContext = JAXBContext.newInstance(SongsHelper.class);
+             
+            //Create Marshaller
+            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+ 
+            //Required formatting??
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+ 
+           //Store XML to File
+            File file = new File("c:/Users/mickur/Documents/question.xml");
+             
+            //Writes XML file to file-system
+            jaxbMarshaller.marshal(songsHelper, file); 
+        } 
+        catch (JAXBException e) 
+        {
+            e.printStackTrace();
+        }*/
+        
+        
+		
+	}
+	
 	private JPanel panelSongs;
 	private void initialize() {
 		frame = new JFrame();

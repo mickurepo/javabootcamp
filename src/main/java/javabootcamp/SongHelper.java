@@ -1,7 +1,14 @@
 package javabootcamp;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.opencsv.bean.CsvBindByName;
 
+@XmlRootElement(name = "song")
 public class SongHelper {
 	@CsvBindByName(column = "Title")
 	private String title;
@@ -32,24 +39,28 @@ public class SongHelper {
 	public void setTitle(String title) {
 		this.title = title;
 	}
+	@XmlElement
 	public String getAuthor() {
 		return author;
 	}
 	public void setAuthor(String author) {
 		this.author = author;
 	}
+	@XmlElement
 	public String getAlbum() {
 		return album;
 	}
 	public void setAlbum(String album) {
 		this.album = album;
 	}
+	@XmlElement
 	public String getCategory() {
 		return category;
 	}
 	public void setCategory(String category) {
 		this.category = category;
 	}
+	@XmlElement
 	public String getVotes() {
 		return votes;
 	}
