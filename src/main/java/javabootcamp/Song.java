@@ -1,17 +1,21 @@
 package javabootcamp;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class Song {
 	private String title;
 	private Author author;
 	private Album album;
-	private String category;
+	private Category category;
 	private int votes;
 	private boolean canVote;
 	public String getTitle() {
 		return title;
 	}
 	
-	public Song(String title, Author author, Album album, String category, int votes) {
+	public Song(String title, Author author, Album album, Category category, int votes) {
 		super();
 		this.title = title;
 		this.author = author;
@@ -29,30 +33,35 @@ public class Song {
 		this.canVote = canVote;
 	}
 
+	@XmlElement
 	public void setTitle(String title) {
 		this.title = title;
 	}
 	public Author getAuthor() {
 		return author;
 	}
+	@XmlElement
 	public void setAuthor(Author author) {
 		this.author = author;
 	}
 	public Album getAlbum() {
 		return album;
 	}
+	@XmlElement
 	public void setAlbum(Album album) {
 		this.album = album;
 	}
-	public String getCategory() {
+	public Category getCategory() {
 		return category;
 	}
-	public void setCategory(String category) {
+	@XmlElement
+	public void setCategory(Category category) {
 		this.category = category;
 	}
 	public int getVotes() {
 		return votes;
 	}
+	@XmlElement
 	public void setVotes(int votes) {
 		this.votes = votes;
 	}

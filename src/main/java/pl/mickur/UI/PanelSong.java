@@ -15,6 +15,7 @@ import javax.swing.border.TitledBorder;
 
 import javabootcamp.Album;
 import javabootcamp.Author;
+import javabootcamp.Category;
 import javabootcamp.Song;
 
 import javax.swing.border.EtchedBorder;
@@ -41,7 +42,7 @@ public class PanelSong extends JPanel {
 		String title = s.getTitle();
 		Author author = s.getAuthor();
 		Album album = s.getAlbum();
-		String category = s.getCategory();
+		Category category = s.getCategory();
 		int votes = s.getVotes();
 		
 		
@@ -88,7 +89,7 @@ public class PanelSong extends JPanel {
 		pCategory.setLayout(new BorderLayout(0, 0));
 		
 		JLabel lblCategory = new JLabel("Category");
-		lblCategory.setText(category);
+		lblCategory.setText(category.name());
 		lblCategory.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		lblCategory.setHorizontalAlignment(SwingConstants.CENTER);
 		pCategory.add(lblCategory);

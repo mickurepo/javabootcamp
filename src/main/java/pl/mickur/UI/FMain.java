@@ -19,16 +19,23 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.w3c.dom.Element;
 import java.io.File;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.*;
 import java.io.*;
 
 import org.xml.sax.SAXException;
 
+import com.google.common.base.CaseFormat;
+
 import javabootcamp.Album;
 import javabootcamp.Author;
+import javabootcamp.Category;
 import javabootcamp.Song;
 import javabootcamp.SongsVotesComparator;
 
@@ -99,6 +106,8 @@ public class FMain {
     	    org.w3c.dom.Document doc = dBuilder.parse(file);
 
     	    doc.getDocumentElement().normalize();
+    	    
+//    	    StringEscapeUtils.escapeXml(str)
   
     	    NodeList nList = doc.getElementsByTagName("song");
 
@@ -152,9 +161,21 @@ public class FMain {
 		return album;
 	}
 	
-	private boolean addSongByStrings(String title, String authorName, String albumName, String category, String votes) {
+	private Category category;
+	
+	private boolean addSongByStrings(String title, String authorName, String albumName, String categoryName, String votes) {
 		Author author = getAuthorByName(authorName);
 		Album album = getAlbumByAuthorAndName(author, albumName);
+//		Category category = Category.valueOf(categoryName.toUpperCase());
+//		Category category = Category.valueOf(categoryName)
+//		categoryName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, categoryName);
+//		categoryName.toUpperCase();
+		categoryName = categoryName.replaceAll("&", "N");
+		categoryName = categoryName.replaceAll(" ", "_").toUpperCase();
+		
+		category = Category.valueOf(categoryName);
+		
+
 		Song song = new Song(title, author, album, category, Integer.parseInt(votes));
 		
 		Song existingSameSong = getSongByStrings(song);
@@ -267,7 +288,6 @@ public class FMain {
 	private List<Song> getSortedListSongsByVotes() {
 		List<Song> sortedListSongs = new ArrayList<Song>(listSongs);
 		Collections.sort(sortedListSongs, new SongsVotesComparator());
-		printSongs(sortedListSongs);
 		return sortedListSongs;
 	}
 	
@@ -278,6 +298,18 @@ public class FMain {
 		window.repaint();
 		panelSongs.revalidate();
 		panelSongs.repaint();
+	}
+	private void rating(int choise) {
+		List<Song> sortedListSongs;
+		sortedListSongs = getSortedListSongsByVotes();
+		if (choise > 0) {
+			if (choise <= sortedListSongs.size())
+				sortedListSongs = sortedListSongs.subList(0, choise);
+		}
+		FRating fRating = new FRating();				
+		showSongs(sortedListSongs, fRating.getPanelSongs());
+		fRating.setModal(true);
+		fRating.setVisible(true);
 	}
 	private JPanel panelSongs;
 	private void initialize() {
@@ -312,38 +344,25 @@ public class FMain {
 		JButton btnRating = new JButton("Rating");
 		btnRating.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				List<Song> sortedListSongs;
-				sortedListSongs = getSortedListSongsByVotes();
-				FRating fRating = new FRating();				
-				showSongs(sortedListSongs, fRating.getPanelSongs());
-				fRating.setModal(true);
-				fRating.setVisible(true);
-				
-				
-//				fewegw fewegw = new fewegw();
-//				fewegw.setModal(true);
-//				fewegw.setVisible(true);
-				
-//				final JDialog frame = new JDialog(frame, "gewweg", true);
-//				frame.getContentPane().add(panel);
-//				frame.pack();
-//				frame.setVisible(true);
-				
-				
-//				final JDialog jDialog = new JDialog(frame, "fwwfe", true);
-//				jDialog.getContentPane().add(fRating);
-//				jDialog.setVisible(true);
-				
-				
-//				fRating.pack();
+				rating(0);
 			}
 		});
 		headerPanel.add(btnRating);
 		
 		JButton btnTop10 = new JButton("Top 10");
+		btnTop10.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rating(10);
+			}
+		});
 		headerPanel.add(btnTop10);
 		
 		JButton btnTop3 = new JButton("Top 3");
+		btnTop3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rating(3);
+			}
+		});
 		headerPanel.add(btnTop3);
 		
 		JPanel footerPanel = new JPanel();
