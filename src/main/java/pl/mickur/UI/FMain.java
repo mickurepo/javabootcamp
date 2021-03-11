@@ -41,11 +41,18 @@ import java.awt.event.ActionEvent;
 import com.opencsv.CSVReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import com.opencsv.CSVReaderBuilder;
+import com.opencsv.CSVWriter;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
@@ -334,17 +341,59 @@ public class FMain {
 		panelSongs.revalidate();
 		panelSongs.repaint();
 	}
+	private List<Song> sortedListSongs;
 	private void rating(int choise) {
-		List<Song> sortedListSongs;
 		sortedListSongs = getSortedListSongsByVotes();
 		if (choise > 0) {
 			if (choise <= sortedListSongs.size())
 				sortedListSongs = sortedListSongs.subList(0, choise);
 		}
-		FRating fRating = new FRating();				
+		final FRating fRating = new FRating();				
 		showSongs(sortedListSongs, fRating.getPanelSongs());
+			
+		fRating.getBtnSaveRaport().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (fRating.getExtension().equals("XML")) {
+//					saveToXml(sortedListSongs);
+				}
+				else if (fRating.getExtension().equals("CSV")) {
+					try {
+						saveToCsv(sortedListSongs);
+					} catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException | IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
 		fRating.setModal(true);
 		fRating.setVisible(true);
+	}
+	private void saveToCsv(List<Song> list) throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+
+		try (
+	            Writer writer = Files.newBufferedWriter(Paths.get("d:/f.csv"));
+	        ) {
+	            StatefulBeanToCsv<SongHelper> beanToCsv = new StatefulBeanToCsvBuilder(writer)
+	                    .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+	                    .build();
+
+	            List<SongHelper> mySongs = new ArrayList<SongHelper>();
+	            
+	            for (Song s : sortedListSongs) {
+	            	String title = s.getTitle();
+	            	String author = s.getAuthor().getName();
+	            	String album = s.getAlbum().getName();
+	            	String category = s.getCategory().toString();
+	            	String votes = Integer.toString(s.getVotes());
+	            	
+	            	SongHelper songHelper = new SongHelper(title, author, album, category, votes);
+	            	mySongs.add(songHelper);
+	            }
+	            
+	            beanToCsv.write(mySongs);
+	        }
+		
 	}
 	private JPanel panelSongs;
 	private void initialize() {

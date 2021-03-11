@@ -17,14 +17,17 @@ public class SongHelper {
 		return title;
 	}
 	
-//	public SongString(String title, String author, String album, String category, String votes) {
-//		super();
-//		this.title = title;
-//		this.author = author;
-//		this.album = album;
-//		this.category = category;
-//		this.votes = votes;
-//	}
+	public SongHelper() {
+		
+	}
+	
+	public SongHelper(String title, String author, String album, String category, String votes) {
+		this.title = title;
+		this.author = author;
+		this.album = album;
+		this.category = category;
+		this.votes = votes;
+	}
 
 	public void setTitle(String title) {
 		this.title = title;
