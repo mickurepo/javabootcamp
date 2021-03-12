@@ -41,8 +41,9 @@ public class FRating extends JDialog {
 		setBounds(100, 100, 450, 520);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		contentPane.setLayout(new BorderLayout(0, 0));
+		contentPane.setLayout(new BorderLayout(0, 0));;
 		setContentPane(contentPane);
+		this.setLocationRelativeTo(null);
 
 		JPanel headerPanel = new JPanel();
 		getContentPane().add(headerPanel, BorderLayout.NORTH);
@@ -84,6 +85,7 @@ public class FRating extends JDialog {
 		panelSongs = new JPanel();
 		
 		JScrollPane scrollPane = new JScrollPane(panelSongs);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(20);
 		panelSongs.setLayout(new BoxLayout(panelSongs, BoxLayout.Y_AXIS));
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setPreferredSize(new Dimension(30, 30));

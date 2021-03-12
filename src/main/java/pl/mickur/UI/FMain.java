@@ -32,11 +32,14 @@ import javabootcamp.SongsHelper;
 import javabootcamp.SongsVotesComparator;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.BoxLayout;
@@ -65,6 +68,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.JLabel;
+import javax.swing.ImageIcon;
+import java.awt.SystemColor;
+import javax.swing.SwingConstants;
 
 public class FMain {
 
@@ -92,6 +99,14 @@ public class FMain {
 	private void showFileWindow() {
 		
 		JFileChooser fileChooser = new JFileChooser();
+		FileFilter[] filters = fileChooser.getChoosableFileFilters();
+		  for (FileFilter filter : filters) {
+			  fileChooser.removeChoosableFileFilter(filter);
+		  }		
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("Document file type", "xml", "csv");
+		fileChooser.setFileFilter(filter);
+		
+//		fileChooser.addChoosableFileFilter(filter);
 		
 		int result = fileChooser.showOpenDialog(frame);
 		
@@ -261,6 +276,16 @@ public class FMain {
 		initialize();
 		showFileWindow();
 		showSongs(listSongs, panelSongs);
+		
+		JPanel panel = new JPanel();
+		panel.setBackground(new Color(51,51,51));
+		frame.getContentPane().add(panel);
+		panel.setLayout(new BorderLayout(0, 0));
+		
+		JLabel lblNewLabel = new JLabel("");
+		lblNewLabel.setIcon(new ImageIcon(FMain.class.getResource("/img/3.png")));
+		panel.add(lblNewLabel);
+		
 	}
 
 	private void printSongs(List<Song> list) {
@@ -284,14 +309,8 @@ public class FMain {
 	}
 	private void showSongs(List<Song> list, JPanel panel) {
 		panel.removeAll();
-//		JFrame f = null;
-//		JDialog d = null;
-//		if (SwingUtilities.getWindowAncestor(panel).getClass().getName().equals("javax.swing.JFrame"))
-//			f = (JFrame) SwingUtilities.getWindowAncestor(panel);
-//		else if (SwingUtilities.getWindowAncestor(panel).getClass().getName().equals("javax.swing.JDialog"))
-//			d = (JDialog) SwingUtilities.getWindowAncestor(panel);
-		Window window = SwingUtilities.getWindowAncestor(panel);
 		
+		Window window = SwingUtilities.getWindowAncestor(panel);
 		
 		for (final Song s : list) {
 			final PanelSong panelSong = new PanelSong(s);
@@ -343,12 +362,13 @@ public class FMain {
 		panelSongs.repaint();
 	}
 	private List<Song> sortedListSongs;
-	private void rating(int range) {
+	private void rating(int range, String title) {
 		if (range > 0) {
 			if (range <= sortedListSongs.size())
 				sortedListSongs = sortedListSongs.subList(0, range);
 		}
-		final FRating fRating = new FRating();				
+		final FRating fRating = new FRating();	
+		fRating.setTitle(title);
 		showSongs(sortedListSongs, fRating.getPanelSongs());
 			
 		fRating.getBtnSaveRaport().addActionListener(new ActionListener() {
@@ -383,6 +403,7 @@ public class FMain {
 		File fileToSave = null;
 		if (userSelection == JFileChooser.APPROVE_OPTION) {
 		    fileToSave = fileChooser.getSelectedFile();
+		    fileToSave = setFileExtenstion(fileToSave, "csv");
 		    
 		    try (
 		            Writer writer = Files.newBufferedWriter(Paths.get(fileToSave.getAbsolutePath()));
@@ -409,6 +430,16 @@ public class FMain {
 		}
 		
 	}
+	
+	// Returns file with wanted extension in case it's missing
+	private File setFileExtenstion(File file, String extDest) {
+		String ext = FilenameUtils.getExtension(file.getName());
+		if (!ext.equals(extDest))
+			return new File(file.getAbsolutePath()+"."+extDest);
+		return file;
+	}
+	
+	// Saving list to xml
 	private void saveToXml(List<Song> list) throws FileNotFoundException, JAXBException {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setDialogTitle("Specify a file to save");   
@@ -417,7 +448,8 @@ public class FMain {
 		File fileToSave = null;
 		if (userSelection == JFileChooser.APPROVE_OPTION) {
 		    fileToSave = fileChooser.getSelectedFile();
-		    
+		    fileToSave = setFileExtenstion(fileToSave, "xml");
+		   
 			ArrayList<SongHelper> listSongHelpers = new ArrayList<SongHelper>();
 			for (Song s : list) {
 		    	String title = s.getTitle();
@@ -446,11 +478,18 @@ public class FMain {
 	private JPanel panelSongs;
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 520);
+		frame.setBounds(100, 100, 741, 520);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.X_AXIS));
+		frame.setLocationRelativeTo(null);
+		frame.setTitle("- For Coreservices Javabootcamp - by Michal Kurzyk - 2021 -");
+		
+		JPanel panelLeft = new JPanel();
+		frame.getContentPane().add(panelLeft);
+		panelLeft.setLayout(new BorderLayout(0, 0));
 		
 		JPanel headerPanel = new JPanel();
-		frame.getContentPane().add(headerPanel, BorderLayout.NORTH);
+		panelLeft.add(headerPanel, BorderLayout.NORTH);
 		headerPanel.setLayout(new BorderLayout(0, 0));
 		
 		JPanel headerPanelContainer = new JPanel();
@@ -493,7 +532,8 @@ public class FMain {
 		JButton btnRating = new JButton("Rating");
 		btnRating.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				rating(0);
+				sortedListSongs = getSortedListSongsByVotes();
+				rating(0, "Rating - all");
 			}
 		});
 		headerPanelContainerS.add(btnRating);
@@ -502,7 +542,7 @@ public class FMain {
 		btnTop10.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sortedListSongs = getSortedListSongsByVotes();
-				rating(10);
+				rating(10, "Rating - top 10");
 			}
 		});
 		headerPanelContainerS.add(btnTop10);
@@ -511,7 +551,7 @@ public class FMain {
 		btnTop3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sortedListSongs = getSortedListSongsByVotes();
-				rating(3);
+				rating(3, "Rating - top 3");
 			}
 		});
 		headerPanelContainerS.add(btnTop3);
@@ -522,27 +562,29 @@ public class FMain {
 				sortedListSongs = new ArrayList<Song>(listSongs);
 				Collections.sort(sortedListSongs);
 				
-				rating(0);
+				rating(0, "Rating by category");
 			}
 		});
 		headerPanelContainerS.add(btnCategoryRating);
 		
 		JPanel footerPanel = new JPanel();
-		frame.getContentPane().add(footerPanel, BorderLayout.SOUTH);
+		panelLeft.add(footerPanel, BorderLayout.SOUTH);
 		
 		JButton btnAddSong = new JButton("Add Song");
 		btnAddSong.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				final FNewSong fNewSong = new FNewSong();
+//				fNewSong.setModal(true);
 //				fNewSong.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				fNewSong.pack();
+//				fNewSong.pack();
 				fNewSong.setVisible(true);
 				fNewSong.btnAddSong.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						String title = fNewSong.tfTitle.getText();
 						String author = fNewSong.tfAuthor.getText();
 						String album = fNewSong.tfAlbum.getText();
-						String category = fNewSong.tfCategory.getText();
+//						String category = fNewSong.tfCategory.getText();
+						String category = fNewSong.cbCategory.getSelectedItem().toString();
 						int votes = (Integer) fNewSong.spinnerVotes.getValue();
 						
 						if (!title.isEmpty() &&
@@ -550,7 +592,7 @@ public class FMain {
 							!album.isEmpty() &&
 							!category.isEmpty()) {
 							if (addSongByStrings(title, author, album, category, Integer.toString(votes))) {
-								JOptionPane.showMessageDialog(fNewSong, "This song already exists in database.");
+								JOptionPane.showMessageDialog(fNewSong, "This song already exists in database.", "warning", JOptionPane.WARNING_MESSAGE);
 							}
 							else {
 								fNewSong.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
@@ -559,7 +601,7 @@ public class FMain {
 							}
 						}
 						else {
-							JOptionPane.showMessageDialog(fNewSong, "The data imput is incorrect.");
+							JOptionPane.showMessageDialog(fNewSong, "The data imput is incorrect.", "warning", JOptionPane.WARNING_MESSAGE);
 						}
 					}
 				});
@@ -568,12 +610,13 @@ public class FMain {
 		footerPanel.add(btnAddSong);
 		
 		JPanel bodyPanel = new JPanel();
-		frame.getContentPane().add(bodyPanel, BorderLayout.CENTER);
+		panelLeft.add(bodyPanel, BorderLayout.CENTER);
 		bodyPanel.setLayout(new BorderLayout(0, 0));
 
 		panelSongs = new JPanel();
 		
 		JScrollPane scrollPane = new JScrollPane(panelSongs);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(20);
 		panelSongs.setLayout(new BoxLayout(panelSongs, BoxLayout.Y_AXIS));
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setPreferredSize(new Dimension(30, 30));

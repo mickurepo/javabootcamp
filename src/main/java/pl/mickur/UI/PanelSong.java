@@ -28,6 +28,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.border.MatteBorder;
+import java.awt.SystemColor;
+import javax.swing.UIManager;
 
 public class PanelSong extends JPanel {
 
@@ -46,11 +49,11 @@ public class PanelSong extends JPanel {
 		int votes = s.getVotes();
 		
 		
-		setBorder(new EmptyBorder(0, 0, 17, 0));
+		setBorder(new MatteBorder(1, 0, 1, 0, (Color) new Color(180, 180, 180)));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
 		JPanel pTitile = new JPanel();
-		pTitile.setBorder(new TitledBorder(null, "Title", TitledBorder.CENTER, TitledBorder.ABOVE_BOTTOM, null, new Color(0, 0, 0)));
+		pTitile.setBorder(new TitledBorder(UIManager.getBorder("Button.border"), "Title", TitledBorder.CENTER, TitledBorder.ABOVE_BOTTOM, null, new Color(0, 0, 0)));
 		add(pTitile);
 		pTitile.setLayout(new BorderLayout(0, 0));
 		
@@ -62,7 +65,9 @@ public class PanelSong extends JPanel {
 		pTitile.add(lblTitle);
 		
 		JPanel pAuthor = new JPanel();
-		pAuthor.setBorder(new TitledBorder(null, "Author", TitledBorder.CENTER, TitledBorder.ABOVE_BOTTOM, null, new Color(0, 0, 0)));
+		pAuthor.setBorder(new TitledBorder(UIManager.getBorder("Button.border"), "Author", TitledBorder.CENTER, TitledBorder.ABOVE_BOTTOM, null, new Color(0, 0, 0)));
+//		pAuthor.setBorder(new TitledBorder(null, "Author", TitledBorder.CENTER, TitledBorder.ABOVE_BOTTOM, null, new Color(0, 0, 0)));
+//		pAuthor.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "Author", TitledBorder.CENTER, TitledBorder.ABOVE_BOTTOM, null, new Color(0, 0, 0)));
 		add(pAuthor);
 		pAuthor.setLayout(new BorderLayout(0, 0));
 		
@@ -74,7 +79,7 @@ public class PanelSong extends JPanel {
 		
 		JPanel pAlbum = new JPanel();
 		add(pAlbum);
-		pAlbum.setBorder(new TitledBorder(null, "Album", TitledBorder.CENTER, TitledBorder.ABOVE_BOTTOM, null, new Color(0, 0, 0)));
+		pAlbum.setBorder(new TitledBorder(UIManager.getBorder("Button.border"), "Album", TitledBorder.CENTER, TitledBorder.ABOVE_BOTTOM, null, new Color(0, 0, 0)));
 		pAlbum.setLayout(new BorderLayout(0, 0));
 		
 		JLabel lblAlbum = new JLabel("Album");
@@ -84,7 +89,7 @@ public class PanelSong extends JPanel {
 		pAlbum.add(lblAlbum);
 		
 		JPanel pCategory = new JPanel();
-		pCategory.setBorder(new TitledBorder(null, "Category", TitledBorder.CENTER, TitledBorder.ABOVE_BOTTOM, null, new Color(0, 0, 0)));
+		pCategory.setBorder(new TitledBorder(UIManager.getBorder("Button.border"), "Category", TitledBorder.CENTER, TitledBorder.ABOVE_BOTTOM, null, new Color(0, 0, 0)));
 		add(pCategory);
 		pCategory.setLayout(new BorderLayout(0, 0));
 		
@@ -95,7 +100,7 @@ public class PanelSong extends JPanel {
 		pCategory.add(lblCategory);
 		
 		JPanel pVotes = new JPanel();
-		pVotes.setBorder(new TitledBorder(null, "Votes", TitledBorder.CENTER, TitledBorder.ABOVE_BOTTOM, null, new Color(0, 0, 0)));
+		pVotes.setBorder(new TitledBorder(UIManager.getBorder("Button.border"), "Votes", TitledBorder.CENTER, TitledBorder.ABOVE_BOTTOM, null, new Color(0, 0, 0)));
 		add(pVotes);
 		pVotes.setLayout(new BorderLayout(0, 0));
 		
@@ -111,8 +116,11 @@ public class PanelSong extends JPanel {
 		lblVotes.setHorizontalAlignment(SwingConstants.CENTER);
 		pVotesContainer.add(lblVotes, BorderLayout.SOUTH);
 		
+		JPanel panel = new JPanel();
+		add(panel);
+		
 		btnVote = new JButton("Vote");
-		pVotesContainer.add(btnVote, BorderLayout.NORTH);
+		panel.add(btnVote);
 		btnVote.setEnabled(s.isCanVote());
 		
 		JPopupMenu popupMenu = new JPopupMenu();

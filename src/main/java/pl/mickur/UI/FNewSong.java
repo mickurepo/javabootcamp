@@ -13,16 +13,20 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
+import javabootcamp.Category;
 import javabootcamp.Song;
 
 import java.awt.FlowLayout;
 import javax.swing.JTextField;
 import javax.swing.JSpinner;
 import javax.swing.JButton;
+import javax.swing.JDialog;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.JComboBox;
 
-public class FNewSong extends JFrame {
+public class FNewSong extends JDialog {
 
 	private JPanel contentPane;
 	protected JTextField tfTitle;
@@ -31,42 +35,19 @@ public class FNewSong extends JFrame {
 	protected JTextField tfCategory;
 	protected JButton btnAddSong;
 	protected final JSpinner spinnerVotes;
+	protected JComboBox cbCategory;
 	
 	private Song newSong;
 
-	/**
-	 * Launch the application.
-	 */
-//	public static void main(String[] args) {
-//		EventQueue.invokeLater(new Runnable() {
-//			public void run() {
-//				try {
-//					FNewSong frame = new FNewSong();
-//					frame.setVisible(true);
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		});
-//	}
-
-	/**
-	 * Create the frame.
-	 */
-//	private String hTitle;
-//	private String hAuthor;
-//	private String hAlbum;
-//	private String hCategory;
-//	private int hVotes;
-//	public FNewSong(String hTitle, String hAuthor, String hAlbum, String hCategory, int hVotes) {
 	public FNewSong() {
 //		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 450, 341);
+		setBounds(100, 100, 348, 414);
 		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		contentPane.setBorder(new EmptyBorder(15, 15, 15, 15));
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
+		this.setLocationRelativeTo(null);
 		
 		JPanel panelBody = new JPanel();
 		contentPane.add(panelBody);
@@ -117,6 +98,13 @@ public class FNewSong extends JFrame {
 		tfCategory.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		pCategory.add(tfCategory, BorderLayout.NORTH);
 		tfCategory.setColumns(10);
+		tfCategory.setVisible(false);
+		
+		cbCategory = new JComboBox();
+		pCategory.add(cbCategory, BorderLayout.SOUTH);
+		for (Category cat : Category.values()) {
+			cbCategory.addItem(cat.toString());
+		}
 		
 		JPanel pVotes = new JPanel();
 		pVotes.setBorder(new TitledBorder(null, "Votes", TitledBorder.CENTER, TitledBorder.ABOVE_BOTTOM, null, new Color(0, 0, 0)));
