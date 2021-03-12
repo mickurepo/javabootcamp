@@ -154,9 +154,7 @@ public class FMain {
     	    org.w3c.dom.Document doc = dBuilder.parse(file);
 
     	    doc.getDocumentElement().normalize();
-    	    
-//    	    StringEscapeUtils.escapeXml(str)
-  
+
     	    NodeList nList = doc.getElementsByTagName("song");
 
     	    for (int i=0; i<nList.getLength(); i++) {
@@ -170,12 +168,6 @@ public class FMain {
     	            String album = getElementNameByTagName(eElement, "album");
     	            String category = getElementNameByTagName(eElement, "category");
     	            String votes = getElementNameByTagName(eElement, "votes");
-    	            
-//    	            System.out.println(title);
-//    	            System.out.println(author);
-//    	            System.out.println(album);
-//    	            System.out.println(category);
-//    	            System.out.println(votes);
     	            
     	            addSongByStrings(title, author, album, category, votes);
     	        }
@@ -214,10 +206,6 @@ public class FMain {
 	private boolean addSongByStrings(String title, String authorName, String albumName, String categoryName, String votes) {
 		Author author = getAuthorByName(authorName);
 		Album album = getAlbumByAuthorAndName(author, albumName);
-//		Category category = Category.valueOf(categoryName.toUpperCase());
-//		Category category = Category.valueOf(categoryName)
-//		categoryName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, categoryName);
-//		categoryName.toUpperCase();
 		categoryName = categoryName.replaceAll("&", "N");
 		categoryName = categoryName.replaceAll(" ", "_").toUpperCase();
 		
@@ -339,6 +327,13 @@ public class FMain {
 		return sortedListSongs;
 	}
 	
+	private List<Song> getSortedListSongsByCategory() {
+		List<Song> sortedListSongs = new ArrayList<Song>(listSongs);
+//		Collections.sort(sortedListSongs, new SongsVotesComparator());
+		Collections.sort(sortedListSongs);
+		return sortedListSongs;
+	}
+	
 	private void refreshFrame(Window window) {
 		SwingUtilities.updateComponentTreeUI(window);
 		window.invalidate();
@@ -348,11 +343,10 @@ public class FMain {
 		panelSongs.repaint();
 	}
 	private List<Song> sortedListSongs;
-	private void rating(int choise) {
-		sortedListSongs = getSortedListSongsByVotes();
-		if (choise > 0) {
-			if (choise <= sortedListSongs.size())
-				sortedListSongs = sortedListSongs.subList(0, choise);
+	private void rating(int range) {
+		if (range > 0) {
+			if (range <= sortedListSongs.size())
+				sortedListSongs = sortedListSongs.subList(0, range);
 		}
 		final FRating fRating = new FRating();				
 		showSongs(sortedListSongs, fRating.getPanelSongs());
@@ -447,58 +441,6 @@ public class FMain {
 	//	    jaxbMarshaller.marshal(songsHelper, System.out);
 		    jaxbMarshaller.marshal(songsHelper, fileToSave);
 		}
-		
-		
-		
-		/*
-		JAXBContext contextObj = JAXBContext.newInstance(SongHelper.class);  
-		  
-	    Marshaller marshallerObj = contextObj.createMarshaller();  
-	    marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);  
-	  
-	    ArrayList<SongHelper> listSongHelpers = new ArrayList<SongHelper>();
-
-	    for (Song s : list) {
-	    	String title = s.getTitle();
-	    	String author = s.getAuthor().getName();
-	    	String album = s.getAlbum().getName();
-	    	String category = s.getCategory().toString();
-	    	String votes = Integer.toString(s.getVotes());
-	    	
-	    	SongHelper songHelper = new SongHelper(title, author, album, category, votes);
-	    	listSongHelpers.add(songHelper);
-	    	
-	    }
-	    marshallerObj.marshal(listSongHelpers, new FileOutputStream("c:/Users/mickur/Documents/question.xml"));
-	    */
-		
-//		SongHelper songHelper = new SongHelper("fweefw","GWegwe","wgweg","gwewge","gwwege");
-        //Method which uses JAXB to convert object to XML
-		/*try
-        {
-            //Create JAXB Context
-//			JAXBContext jaxbContext = JAXBContext.newInstance(SongHelper.class);
-			JAXBContext jaxbContext = JAXBContext.newInstance(SongsHelper.class);
-             
-            //Create Marshaller
-            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
- 
-            //Required formatting??
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
- 
-           //Store XML to File
-            File file = new File("c:/Users/mickur/Documents/question.xml");
-             
-            //Writes XML file to file-system
-            jaxbMarshaller.marshal(songsHelper, file); 
-        } 
-        catch (JAXBException e) 
-        {
-            e.printStackTrace();
-        }*/
-        
-        
-		
 	}
 	
 	private JPanel panelSongs;
@@ -509,6 +451,14 @@ public class FMain {
 		
 		JPanel headerPanel = new JPanel();
 		frame.getContentPane().add(headerPanel, BorderLayout.NORTH);
+		headerPanel.setLayout(new BorderLayout(0, 0));
+		
+		JPanel headerPanelContainer = new JPanel();
+		headerPanel.add(headerPanelContainer);
+		headerPanelContainer.setLayout(new BoxLayout(headerPanelContainer, BoxLayout.Y_AXIS));
+		
+		JPanel headerPanelContainerN = new JPanel();
+		headerPanelContainer.add(headerPanelContainerN);
 		
 		JButton btnLoad = new JButton("Load Songs");
 		btnLoad.addActionListener(new ActionListener() {
@@ -517,7 +467,14 @@ public class FMain {
 				showSongs(listSongs, panelSongs);
 			}
 		});
-		headerPanel.add(btnLoad);
+		headerPanelContainerN.add(btnLoad);
+		
+		
+		
+		
+		
+		JPanel headerPanelContainerS = new JPanel();
+		headerPanelContainer.add(headerPanelContainerS);
 		
 		JButton btnClearVotes = new JButton("Clear all votes");
 		btnClearVotes.addActionListener(new ActionListener() {
@@ -529,7 +486,9 @@ public class FMain {
 				showSongs(listSongs, panelSongs);
 			}
 		});
-		headerPanel.add(btnClearVotes);
+		headerPanelContainerN.add(btnClearVotes);
+		
+		
 		
 		JButton btnRating = new JButton("Rating");
 		btnRating.addActionListener(new ActionListener() {
@@ -537,23 +496,36 @@ public class FMain {
 				rating(0);
 			}
 		});
-		headerPanel.add(btnRating);
+		headerPanelContainerS.add(btnRating);
 		
 		JButton btnTop10 = new JButton("Top 10");
 		btnTop10.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				sortedListSongs = getSortedListSongsByVotes();
 				rating(10);
 			}
 		});
-		headerPanel.add(btnTop10);
+		headerPanelContainerS.add(btnTop10);
 		
 		JButton btnTop3 = new JButton("Top 3");
 		btnTop3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				sortedListSongs = getSortedListSongsByVotes();
 				rating(3);
 			}
 		});
-		headerPanel.add(btnTop3);
+		headerPanelContainerS.add(btnTop3);
+		
+		JButton btnCategoryRating = new JButton("Category Rating");
+		btnCategoryRating.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {				
+				sortedListSongs = new ArrayList<Song>(listSongs);
+				Collections.sort(sortedListSongs);
+				
+				rating(0);
+			}
+		});
+		headerPanelContainerS.add(btnCategoryRating);
 		
 		JPanel footerPanel = new JPanel();
 		frame.getContentPane().add(footerPanel, BorderLayout.SOUTH);

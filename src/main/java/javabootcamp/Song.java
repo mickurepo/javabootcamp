@@ -1,10 +1,12 @@
 package javabootcamp;
 
+import java.util.Comparator;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class Song {
+public class Song implements Comparable<Song>{
 	private String title;
 	private Author author;
 	private Album album;
@@ -64,6 +66,15 @@ public class Song {
 	@XmlElement
 	public void setVotes(int votes) {
 		this.votes = votes;
+	}
+
+	@Override
+	public int compareTo(Song o) {
+		int result = this.getCategory().toString().compareTo(o.getCategory().toString());
+		if (result == 0) {
+			result = -1 * Integer.toString(this.votes).compareTo(Integer.toString(o.votes));
+		}
+		return result;
 	}
 	
 	
