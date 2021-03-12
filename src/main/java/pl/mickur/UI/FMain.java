@@ -283,9 +283,10 @@ public class FMain {
 		panel.setLayout(new BorderLayout(0, 0));
 		
 		JLabel lblNewLabel = new JLabel("");
-		lblNewLabel.setIcon(new ImageIcon(FMain.class.getResource("/img/3.png")));
+		lblNewLabel.setIcon(new ImageIcon(FMain.class.getResource("/img/4.png")));
 		panel.add(lblNewLabel);
 		
+
 	}
 
 	private void printSongs(List<Song> list) {
@@ -478,7 +479,7 @@ public class FMain {
 	private JPanel panelSongs;
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 741, 520);
+		frame.setBounds(100, 100, 780, 520);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.X_AXIS));
 		frame.setLocationRelativeTo(null);
