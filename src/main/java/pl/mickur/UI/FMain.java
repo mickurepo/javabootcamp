@@ -75,11 +75,7 @@ import javax.swing.SwingConstants;
 
 public class FMain {
 
-	private JFrame frame;
-
-	/**
-	 * Launch the application.
-	 */
+	// Main function
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -93,49 +89,42 @@ public class FMain {
 		});
 	}
 
-	/**
-	 * Create the application.
-	 */
+	// Showing JFileChooser to take file (xml or csv), then pass it on to parser (parseXML(file.xml) or parseXML(file.csv))
 	private void showFileWindow() {
-		
 		JFileChooser fileChooser = new JFileChooser();
 		FileFilter[] filters = fileChooser.getChoosableFileFilters();
-		  for (FileFilter filter : filters) {
-			  fileChooser.removeChoosableFileFilter(filter);
-		  }		
+		for (FileFilter filter : filters)
+			fileChooser.removeChoosableFileFilter(filter);
+		
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("Document file type", "xml", "csv");
 		fileChooser.setFileFilter(filter);
-		
-//		fileChooser.addChoosableFileFilter(filter);
 		
 		int result = fileChooser.showOpenDialog(frame);
 		
 		if (result == JFileChooser.APPROVE_OPTION) {
 		    File selectedFile = fileChooser.getSelectedFile();
-		    
-//		    System.out.println("Selected file: " + selectedFile.getAbsolutePath());
-		    
+
 		    if (selectedFile.canRead()) {
 		    	String extension = FilenameUtils.getExtension(selectedFile.getName());
-		    	if (extension.equals("xml")) {
+		    	if (extension.equals("xml")) 
 		    		parseXML(selectedFile);		    		
-		    	}
-		    	else if (extension.equals("csv")) {
+		    	else if (extension.equals("csv")) 
 		    		parseCSV(selectedFile);
-		    	}
 		    }
 		}
 	}
 	
-	
-	
+	// Generate the list of objects List<SongHelper> (prototype of Song with all string-fields)
+	// Calling the addSongByStrings(...) function
+	// addSongByStrings(...) function will create the new Song object by strings ...
+	// ... and will create new Album object and new Author object if not find suitable
 	private void parseCSV(File file) {
 		final String SAMPLE_CSV_FILE_PATH = file.getAbsolutePath();
 
 		try (
 			Reader reader = Files.newBufferedReader(Paths.get(SAMPLE_CSV_FILE_PATH));
 		) {
-			CsvToBean<SongHelper> csvToBean = new CsvToBeanBuilder(reader)
+			CsvToBean<SongHelper> csvToBean = new CsvToBeanBuilder<SongHelper>(reader)
 					.withType(SongHelper.class)
 					.withIgnoreLeadingWhiteSpace(true)
 					.build();
@@ -157,13 +146,21 @@ public class FMain {
 		}
 	}
 	
+	// Function for xml parsing. Returning the tag founded by parent tag and string tagName
+	// <eElement>
+	// 		<tagName></tagName>
+	// </eElement>
+	// "tagName" is returned
 	private String getElementNameByTagName(Element eElement, String tagName) {
 		return eElement.getElementsByTagName(tagName).item(0).getTextContent(); 
 	}
 	
+	// Parsing xml from file.
+	// Calling the addSongByStrings(...) function
+	// addSongByStrings(...) function will create the new Song object by strings ...
+	// ... and will create new Album object and new Author object if not find suitable
 	private void parseXML(File file) {
 		try {
-
     	    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
     	    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
     	    org.w3c.dom.Document doc = dBuilder.parse(file);
@@ -192,18 +189,23 @@ public class FMain {
 	    }
 	}
 	
+	// Returning the Author object with the name if exists or creating new Author object and returning it
+	// By creating a new Author it will be added to the listAuthor list
 	private Author getAuthorByName(String name) {
 		Author author = null;
 		for (Author a : listAuthors) {
 			if (a.getName().equals(name))
 				return a;
 		}
-		
 		author = new Author(name);
 		listAuthors.add(author);
 		return author;
 	}
 	
+	// Returning the Album object finded by handle of Author object and the name if exists
+	// (Author handle necessery. Case: 2 different albums same named can own 2 different Authors)
+	// or creating new Album object and returning it
+	// By creating a new Album it will be added to the listAlbums list
 	private Album getAlbumByAuthorAndName(Author author, String name) {
 		Album album = null;
 		List<Album> listAlbumsOfArtist = author.getAlbums();
@@ -216,8 +218,7 @@ public class FMain {
 		return album;
 	}
 	
-	private Category category;
-	
+	// Adding 
 	private boolean addSongByStrings(String title, String authorName, String albumName, String categoryName, String votes) {
 		Author author = getAuthorByName(authorName);
 		Album album = getAlbumByAuthorAndName(author, albumName);
@@ -240,34 +241,27 @@ public class FMain {
 			
 	}
 	
+	// Comparing all songs in listSongs to the song,
+	// returning the song object, or null if not exists same song
 	private Song getSongByStrings(Song song) {
 		String title = song.getTitle();
         String author = song.getAuthor().getName();
         String album = song.getAlbum().getName();
-//        String category = song.getCategory();
-//        int votes = song.getVotes();
         
         for (Song s : listSongs) {
         	String sTitle = s.getTitle();
         	String sAuthor = s.getAuthor().getName();
         	String sAlbum = s.getAlbum().getName();
-//        	String sCategory = s.getCategory();
-//        	int sVotes = s.getVotes();
-        	
         	if (sTitle.equals(title) &&
         		sAuthor.equals(author) &&
         		sAlbum.equals(album))
-//        		sCategory.equals(category) &&
-//        		sVotes == sVotes)
         		return s;
         }
 		return null;
-	}
+	}	
 	
-	private List<Song> listSongs;
-	private List<Author> listAuthors;
-	private List<Album> listAlbums;
-	
+	// Main function, initializing the frame, shows the JFileChooser to get a file with data
+	// initializing new lists during opening the program
 	public FMain() {
 		listSongs = new ArrayList<Song>();
 		listAuthors = new ArrayList<Author>();
@@ -276,38 +270,30 @@ public class FMain {
 		initialize();
 		showFileWindow();
 		showSongs(listSongs, panelSongs);
-		
-		JPanel panel = new JPanel();
-		panel.setBackground(new Color(51,51,51));
-		frame.getContentPane().add(panel);
-		panel.setLayout(new BorderLayout(0, 0));
-		
-		JLabel lblNewLabel = new JLabel("");
-		lblNewLabel.setIcon(new ImageIcon(FMain.class.getResource("/img/4.png")));
-		panel.add(lblNewLabel);
-		
-
 	}
 
+	// Unnecessery method for developers
 	private void printSongs(List<Song> list) {
-		for (Song s : list) {
+		for (Song s : list) 
 			System.out.println(s.getTitle());
-			
-		}
 	}
+	
+	// Unnecessery method for developers
 	private void printAlbums() {
 		for (Album a : listAlbums) {
 			System.out.println(a.getName());
-//			for (Song s : a.getListOfSongs()) {
-//				System.out.println(s.getTitle());
-//			}
 		}
 	}
+	
+	// Unnecessery method for developers
 	private void printAuthors() {
 		for (Author author : listAuthors) {
 			System.out.println(author.getName());
 		}
 	}
+	
+	// Creating panel(s) (PanelSong) for each song from the list (List<Song>) onto the pointed panel
+	// clearing the panel before, and refreshing after
 	private void showSongs(List<Song> list, JPanel panel) {
 		panel.removeAll();
 		
@@ -318,17 +304,14 @@ public class FMain {
 			panel.add(panelSong);
 			panelSong.btnVote.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-//					panelSong.btnVote.setEnabled(false);
 					s.setVotes(s.getVotes()+1);
 					s.setCanVote(false);
-					
 					showSongs(list, panel);
 					showSongs(listSongs, panelSongs);
 					refreshFrame(window);
 				}
 			});
 			panelSong.jMenuItem.addActionListener(new ActionListener() {
-				
 				public void actionPerformed(ActionEvent e) {
 					s.setVotes(0);
 					s.setCanVote(true);
@@ -341,19 +324,24 @@ public class FMain {
 		refreshFrame(window);
 	}
 	
+	// Returning the new list of songs sorted by votes.
+	// The new list is created on the basis on listSongs (cloned)
 	private List<Song> getSortedListSongsByVotes() {
 		List<Song> sortedListSongs = new ArrayList<Song>(listSongs);
 		Collections.sort(sortedListSongs, new SongsVotesComparator());
 		return sortedListSongs;
 	}
 	
+	// Returning the new list of songs sorted by category.
+	// The new list is created on the basis on listSongs (cloned)
 	private List<Song> getSortedListSongsByCategory() {
 		List<Song> sortedListSongs = new ArrayList<Song>(listSongs);
-//		Collections.sort(sortedListSongs, new SongsVotesComparator());
 		Collections.sort(sortedListSongs);
 		return sortedListSongs;
 	}
 	
+	// Refreshing the window (Window: JFrame or JDialog)
+	// Used to refresh the window after putting new song's panels into it dynamicly
 	private void refreshFrame(Window window) {
 		SwingUtilities.updateComponentTreeUI(window);
 		window.invalidate();
@@ -362,7 +350,11 @@ public class FMain {
 		panelSongs.revalidate();
 		panelSongs.repaint();
 	}
-	private List<Song> sortedListSongs;
+	
+	// Showing new window FRating
+	// range argument is used to specify the range of list wanted (top 3, top 10, top x)
+	// range specified on 0 will create rating window with full list (top all)
+	// argument title specifing the name (title) of the window (JFame)
 	private void rating(int range, String title) {
 		if (range > 0) {
 			if (range <= sortedListSongs.size())
@@ -395,6 +387,9 @@ public class FMain {
 		fRating.setModal(true);
 		fRating.setVisible(true);
 	}
+	
+	// Saving the list from argument into csv file
+	// the function setfileExtension(...) will put the extension .csv to filename if missing
 	private void saveToCsv(List<Song> list) throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
 
 		JFileChooser fileChooser = new JFileChooser();
@@ -409,7 +404,7 @@ public class FMain {
 		    try (
 		            Writer writer = Files.newBufferedWriter(Paths.get(fileToSave.getAbsolutePath()));
 		        ) {
-	            StatefulBeanToCsv<SongHelper> beanToCsv = new StatefulBeanToCsvBuilder(writer)
+	            StatefulBeanToCsv<SongHelper> beanToCsv = new StatefulBeanToCsvBuilder<SongHelper>(writer)
 	                    .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
 	                    .build();
 
@@ -429,10 +424,9 @@ public class FMain {
 	            beanToCsv.write(mySongs);
 	        }
 		}
-		
 	}
 	
-	// Returns file with wanted extension in case it's missing
+	// Correct the file extension (adding wanted extension) if missing and returning corrected 
 	private File setFileExtenstion(File file, String extDest) {
 		String ext = FilenameUtils.getExtension(file.getName());
 		if (!ext.equals(extDest))
@@ -440,7 +434,7 @@ public class FMain {
 		return file;
 	}
 	
-	// Saving list to xml
+	// Saving the list to xml JFileChooser called inside the function
 	private void saveToXml(List<Song> list) throws FileNotFoundException, JAXBException {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setDialogTitle("Specify a file to save");   
@@ -476,7 +470,91 @@ public class FMain {
 		}
 	}
 	
+	// Loading songs into the specified list and showing them onto the panel
+	private void loadSongs(List<Song> list, JPanel panel) {
+		showFileWindow();
+		showSongs(list, panel);
+	}
+	
+	// Action for Clear Votes button
+	// Clearing votes of all songs 
+	private void clearVotes() {
+		for (Song s : listSongs) {
+			s.setVotes(0);
+			s.setCanVote(true);
+		}
+		showSongs(listSongs, panelSongs);
+	}
+	
+	// Rating button action
+	private void btnRatingAction() {
+		sortedListSongs = getSortedListSongsByVotes();
+		rating(0, "Rating - all");
+	}
+	
+	// Rating button action
+	private void btnTop10Action() {
+		sortedListSongs = getSortedListSongsByVotes();
+		rating(10, "Rating - Top 10");
+	}
+	
+	// Rating button action
+	private void btnTop3Action() {
+		sortedListSongs = getSortedListSongsByVotes();
+		rating(3, "Rating - Top 3");
+	}
+	
+	// Rating by category button action
+	private void btnCategoryRatingAction() {
+		sortedListSongs = new ArrayList<Song>(listSongs);
+		Collections.sort(sortedListSongs);
+		rating(0, "Rating by category");
+	}
+	
+	private void btnAddSongAction() {
+		final FNewSong fNewSong = new FNewSong();
+		fNewSong.setVisible(true);
+		fNewSong.btnAdd.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String title = fNewSong.tfTitle.getText();
+				String author = fNewSong.tfAuthor.getText();
+				String album = fNewSong.tfAlbum.getText();
+				String category = fNewSong.cbCategory.getSelectedItem().toString();
+				int votes = (Integer) fNewSong.spinnerVotes.getValue();
+				
+				if (!title.isEmpty() &&
+					!author.isEmpty() &&
+					!album.isEmpty() &&
+					!category.isEmpty()) {
+					if (addSongByStrings(title, author, album, category, Integer.toString(votes))) {
+						JOptionPane.showMessageDialog(fNewSong, "This song already exists in database.", "warning", JOptionPane.WARNING_MESSAGE);
+					}
+					else {
+						fNewSong.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+						showSongs(listSongs, panelSongs);
+						JOptionPane.showMessageDialog(fNewSong, "The song added succesfully.");
+					}
+				}
+				else {
+					JOptionPane.showMessageDialog(fNewSong, "The data imput is incorrect.", "warning", JOptionPane.WARNING_MESSAGE);
+				}
+			}
+		});
+	}
+	
+	private JFrame frame;
+	
+	// Enum category of song 
+	private Category category;
+	
+	private List<Song> listSongs;
+	private List<Author> listAuthors;
+	private List<Album> listAlbums;
+	private List<Song> sortedListSongs;
 	private JPanel panelSongs;
+	
+	// Initialize the main form JFrame
+	// changes in front-end
 	private void initialize() {
 		frame = new JFrame();
 		frame.setBounds(100, 100, 780, 520);
@@ -503,15 +581,10 @@ public class FMain {
 		JButton btnLoad = new JButton("Load Songs");
 		btnLoad.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				showFileWindow();
-				showSongs(listSongs, panelSongs);
+				loadSongs(listSongs, panelSongs);
 			}
 		});
 		headerPanelContainerN.add(btnLoad);
-		
-		
-		
-		
 		
 		JPanel headerPanelContainerS = new JPanel();
 		headerPanelContainer.add(headerPanelContainerS);
@@ -519,22 +592,15 @@ public class FMain {
 		JButton btnClearVotes = new JButton("Clear all votes");
 		btnClearVotes.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				for (Song s : listSongs) {
-					s.setVotes(0);
-					s.setCanVote(true);
-				}
-				showSongs(listSongs, panelSongs);
+				clearVotes();
 			}
 		});
 		headerPanelContainerN.add(btnClearVotes);
 		
-		
-		
 		JButton btnRating = new JButton("Rating");
 		btnRating.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sortedListSongs = getSortedListSongsByVotes();
-				rating(0, "Rating - all");
+				btnRatingAction();
 			}
 		});
 		headerPanelContainerS.add(btnRating);
@@ -542,8 +608,7 @@ public class FMain {
 		JButton btnTop10 = new JButton("Top 10");
 		btnTop10.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sortedListSongs = getSortedListSongsByVotes();
-				rating(10, "Rating - top 10");
+				btnTop10Action();
 			}
 		});
 		headerPanelContainerS.add(btnTop10);
@@ -551,8 +616,7 @@ public class FMain {
 		JButton btnTop3 = new JButton("Top 3");
 		btnTop3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sortedListSongs = getSortedListSongsByVotes();
-				rating(3, "Rating - top 3");
+				btnTop3Action();
 			}
 		});
 		headerPanelContainerS.add(btnTop3);
@@ -560,10 +624,7 @@ public class FMain {
 		JButton btnCategoryRating = new JButton("Category Rating");
 		btnCategoryRating.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {				
-				sortedListSongs = new ArrayList<Song>(listSongs);
-				Collections.sort(sortedListSongs);
-				
-				rating(0, "Rating by category");
+				btnCategoryRatingAction();
 			}
 		});
 		headerPanelContainerS.add(btnCategoryRating);
@@ -574,38 +635,7 @@ public class FMain {
 		JButton btnAddSong = new JButton("Add Song");
 		btnAddSong.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				final FNewSong fNewSong = new FNewSong();
-//				fNewSong.setModal(true);
-//				fNewSong.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//				fNewSong.pack();
-				fNewSong.setVisible(true);
-				fNewSong.btnAddSong.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						String title = fNewSong.tfTitle.getText();
-						String author = fNewSong.tfAuthor.getText();
-						String album = fNewSong.tfAlbum.getText();
-//						String category = fNewSong.tfCategory.getText();
-						String category = fNewSong.cbCategory.getSelectedItem().toString();
-						int votes = (Integer) fNewSong.spinnerVotes.getValue();
-						
-						if (!title.isEmpty() &&
-							!author.isEmpty() &&
-							!album.isEmpty() &&
-							!category.isEmpty()) {
-							if (addSongByStrings(title, author, album, category, Integer.toString(votes))) {
-								JOptionPane.showMessageDialog(fNewSong, "This song already exists in database.", "warning", JOptionPane.WARNING_MESSAGE);
-							}
-							else {
-								fNewSong.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-								showSongs(listSongs, panelSongs);
-								JOptionPane.showMessageDialog(fNewSong, "The song added succesfully.");
-							}
-						}
-						else {
-							JOptionPane.showMessageDialog(fNewSong, "The data imput is incorrect.", "warning", JOptionPane.WARNING_MESSAGE);
-						}
-					}
-				});
+				btnAddSongAction();
 			}
 		});
 		footerPanel.add(btnAddSong);
@@ -622,5 +652,14 @@ public class FMain {
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setPreferredSize(new Dimension(30, 30));
 		bodyPanel.add(scrollPane);
+		
+		JPanel panel = new JPanel();
+		panel.setBackground(new Color(51,51,51));
+		frame.getContentPane().add(panel);
+		panel.setLayout(new BorderLayout(0, 0));
+		
+		JLabel lblNewLabel = new JLabel("");
+		lblNewLabel.setIcon(new ImageIcon(FMain.class.getResource("/img/4.png")));
+		panel.add(lblNewLabel);
 	}
 }

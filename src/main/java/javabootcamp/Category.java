@@ -33,6 +33,6 @@ public enum Category{
 
    public String toString()
    {
-      return this.value; //This will return , # or +
+      return this.value;
    }
 }

@@ -33,7 +33,7 @@ public class FNewSong extends JDialog {
 	protected JTextField tfAuthor;
 	protected JTextField tfAlbum;
 	protected JTextField tfCategory;
-	protected JButton btnAddSong;
+	protected JButton btnAdd;
 	protected final JSpinner spinnerVotes;
 	protected JComboBox cbCategory;
 	
@@ -120,14 +120,8 @@ public class FNewSong extends JDialog {
 		contentPane.add(panel, BorderLayout.SOUTH);
 		panel.setLayout(new BorderLayout(0, 0));
 		
-		btnAddSong = new JButton("Add Song");
-		panel.add(btnAddSong, BorderLayout.NORTH);
-		
-		
-		
-		
-		
-		
+		btnAdd = new JButton("Add");
+		panel.add(btnAdd, BorderLayout.NORTH);
 	}
 
 }
