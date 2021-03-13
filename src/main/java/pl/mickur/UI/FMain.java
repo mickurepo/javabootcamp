@@ -554,7 +554,7 @@ public class FMain {
 	private JPanel panelSongs;
 	
 	// Initialize the main form JFrame
-	// changes in front-end
+	// work here only to make changes in front-end
 	private void initialize() {
 		frame = new JFrame();
 		frame.setBounds(100, 100, 780, 520);
