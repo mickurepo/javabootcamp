@@ -659,7 +659,10 @@ public class FMain {
 		panel.setLayout(new BorderLayout(0, 0));
 		
 		JLabel lblNewLabel = new JLabel("");
-		lblNewLabel.setIcon(new ImageIcon(FMain.class.getResource("/img/4.png")));
+//		getClass().getResource(name)
+		ImageIcon IC = new ImageIcon(getClass().getResource("/4.png"));
+		lblNewLabel.setIcon(IC);
+//		lblNewLabel.setIcon(new ImageIcon(FMain.class.getResource("/img/4.png")));
 		panel.add(lblNewLabel);
 	}
 }
