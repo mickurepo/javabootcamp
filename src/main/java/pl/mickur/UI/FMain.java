@@ -38,6 +38,7 @@ import java.awt.Dimension;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JButton;
@@ -72,6 +73,11 @@ import javax.swing.JLabel;
 import javax.swing.ImageIcon;
 import java.awt.SystemColor;
 import javax.swing.SwingConstants;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.Font;
+import java.awt.FlowLayout;
+import java.awt.Component;
 
 public class FMain {
 
@@ -104,6 +110,10 @@ public class FMain {
 		if (result == JFileChooser.APPROVE_OPTION) {
 		    File selectedFile = fileChooser.getSelectedFile();
 
+		    bodyPanel.remove(panelWelcome);
+    		bodyPanel.add(scrollPane, BorderLayout.CENTER);
+//    		refreshFrame(frame);
+		    
 		    if (selectedFile.canRead()) {
 		    	String extension = FilenameUtils.getExtension(selectedFile.getName());
 		    	if (extension.equals("xml")) 
@@ -138,7 +148,11 @@ public class FMain {
 				String categoryName = csvSong.getCategory();
 				String votes = csvSong.getVotes();
 				
-				addSongByStrings(title, authorName, albumName, categoryName, votes);
+				if (contains(categoryName))
+					addSongByStrings(title, authorName, albumName, categoryName, votes);
+				else
+					JOptionPane.showMessageDialog(frame, "Unknow song's category: "+categoryName+".", "warning", JOptionPane.WARNING_MESSAGE);
+					
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -146,6 +160,24 @@ public class FMain {
 		}
 	}
 	
+	// Formating string to proper enum format
+	private String formatingCategorySting(String str) {
+    	str = str.replaceAll("&", "N");
+    	str = str.replaceAll(" ", "_").toUpperCase();
+    	return str;
+    }
+	
+	// checking enum if existx valueof
+    private boolean contains(String test) {
+    	test = formatingCategorySting(test);
+        for (Category c : Category.values()) {
+            if (c.name().equals(test)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
 	// Function for xml parsing. Returning the tag founded by parent tag and string tagName
 	// <eElement>
 	// 		<tagName></tagName>
@@ -176,12 +208,15 @@ public class FMain {
     	        if (nNode.getNodeType() == Node.ELEMENT_NODE) {
     	            Element eElement = (Element) nNode;
     	            String title = getElementNameByTagName(eElement, "title");
-    	            String author = getElementNameByTagName(eElement, "author");
-    	            String album = getElementNameByTagName(eElement, "album");
-    	            String category = getElementNameByTagName(eElement, "category");
+    	            String authorName = getElementNameByTagName(eElement, "author");
+    	            String albumName = getElementNameByTagName(eElement, "album");
+    	            String categoryName = getElementNameByTagName(eElement, "category");
     	            String votes = getElementNameByTagName(eElement, "votes");
     	            
-    	            addSongByStrings(title, author, album, category, votes);
+    	            if (contains(categoryName))
+    					addSongByStrings(title, authorName, albumName, categoryName, votes);
+    				else
+    					JOptionPane.showMessageDialog(frame, "Unknow song's category: "+categoryName+".", "warning", JOptionPane.WARNING_MESSAGE);
     	        }
     	    }
 	    } catch (Exception e) {
@@ -225,9 +260,9 @@ public class FMain {
 		categoryName = categoryName.replaceAll("&", "N");
 		categoryName = categoryName.replaceAll(" ", "_").toUpperCase();
 		
-		category = Category.valueOf(categoryName);
-		
-
+		if (Category.valueOf(categoryName) != null)
+			category = Category.valueOf(categoryName);
+			
 		Song song = new Song(title, author, album, category, Integer.parseInt(votes));
 		
 		Song existingSameSong = getSongByStrings(song);
@@ -268,8 +303,11 @@ public class FMain {
 		listAlbums = new ArrayList<Album>();
 		
 		initialize();
-		showFileWindow();
+//		showFileWindow();
 		showSongs(listSongs, panelSongs);
+		
+		JPanel panel = new JPanel();
+		panelSongs.add(panel);
 	}
 
 	// Unnecessery method for developers
@@ -347,8 +385,11 @@ public class FMain {
 		window.invalidate();
 		window.validate();
 		window.repaint();
+		bodyPanel.revalidate();
+		bodyPanel.repaint();
 		panelSongs.revalidate();
 		panelSongs.repaint();
+		
 	}
 	
 	// Showing new window FRating
@@ -511,6 +552,7 @@ public class FMain {
 		rating(0, "Rating by category");
 	}
 	
+	// Add Song button action
 	private void btnAddSongAction() {
 		final FNewSong fNewSong = new FNewSong();
 		fNewSong.setVisible(true);
@@ -532,6 +574,8 @@ public class FMain {
 					else {
 						fNewSong.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 						showSongs(listSongs, panelSongs);
+						bodyPanel.remove(panelWelcome);
+			    		bodyPanel.add(scrollPane, BorderLayout.CENTER);
 						JOptionPane.showMessageDialog(fNewSong, "The song added succesfully.");
 					}
 				}
@@ -551,6 +595,9 @@ public class FMain {
 	private List<Author> listAuthors;
 	private List<Album> listAlbums;
 	private List<Song> sortedListSongs;
+	private JPanel panelWelcome;
+	private JPanel bodyPanel;
+	private JScrollPane scrollPane;
 	private JPanel panelSongs;
 	
 	// Initialize the main form JFrame
@@ -640,18 +687,48 @@ public class FMain {
 		});
 		footerPanel.add(btnAddSong);
 		
-		JPanel bodyPanel = new JPanel();
+		bodyPanel = new JPanel();
 		panelLeft.add(bodyPanel, BorderLayout.CENTER);
 		bodyPanel.setLayout(new BorderLayout(0, 0));
 
 		panelSongs = new JPanel();
 		
-		JScrollPane scrollPane = new JScrollPane(panelSongs);
+		scrollPane = new JScrollPane(panelSongs);
 		scrollPane.getVerticalScrollBar().setUnitIncrement(20);
 		panelSongs.setLayout(new BoxLayout(panelSongs, BoxLayout.Y_AXIS));
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setPreferredSize(new Dimension(30, 30));
 		bodyPanel.add(scrollPane);
+		
+		panelWelcome = new JPanel();
+		panelWelcome.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				loadSongs(listSongs, panelSongs);
+			}
+		});
+		bodyPanel.add(panelWelcome, BorderLayout.CENTER);
+		panelWelcome.setLayout(new BoxLayout(panelWelcome, BoxLayout.Y_AXIS));
+		
+		JPanel panel_2 = new JPanel();
+		panel_2.setAlignmentY(Component.TOP_ALIGNMENT);
+		FlowLayout flowLayout = (FlowLayout) panel_2.getLayout();
+		flowLayout.setVgap(50);
+		panelWelcome.add(panel_2);
+		
+		JLabel lblNewLabel_1 = new JLabel("Welcome\nClick here\nto\nload data");
+		lblNewLabel_1.setBorder(new EmptyBorder(20,20,20,20));//top,left,bottom,right
+		lblNewLabel_1.setText("<html>"
+				+ "<p style=\"text-align: center; font-size:32px;\">Welcome</p>"
+				+ "<br/>"
+				+ "<br/>"
+				+ "<p style=\"text-align: center; font-size:23px;\">Click here</p>"				
+				+ "<p style=\"text-align: center; font-size:17px;\">to</p>"
+				+ "<p style=\"text-align: center; font-size:20px;\">load data</p>"
+				+ "</html>");
+		lblNewLabel_1.setFont(new Font("Sylfaen", Font.ITALIC, 29));
+		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
+		panel_2.add(lblNewLabel_1);
 		
 		JPanel panel = new JPanel();
 		panel.setBackground(new Color(51,51,51));
