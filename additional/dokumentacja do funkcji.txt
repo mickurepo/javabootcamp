@@ -1,0 +1,173 @@
+// Showing JFileChooser to take file (xml or csv), then pass it on to parser (parseXML(file.xml) or parseXML(file.csv))
+private void showFileWindow() { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Generate the list of objects List<SongHelper> (prototype of Song with all string-fields)
+// Calling the addSongByStrings(...) function
+// addSongByStrings(...) function will create the new Song object by strings ...
+// ... and will create new Album object and new Author object if not find suitable
+private void parseCSV(File file) { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Formating string to proper enum format
+private String formatingCategorySting(String str) { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// checking enum if existx valueof
+private boolean contains(String test) { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Function for xml parsing. Returning the tag founded by parent tag and string tagName
+// <eElement>
+// 		<tagName></tagName>
+// </eElement>
+// "tagName" is returned
+private String getElementNameByTagName(Element eElement, String tagName) { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Parsing xml from file.
+// Calling the addSongByStrings(...) function
+// addSongByStrings(...) function will create the new Song object by strings ...
+// ... and will create new Album object and new Author object if not find suitable
+private void parseXML(File file) { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Returning the Author object with the name if exists or creating new Author object and returning it
+// By creating a new Author it will be added to the listAuthor list
+private Author getAuthorByName(String name) { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Returning the Album object finded by handle of Author object and the name if exists
+// (Author handle necessery. Case: 2 different albums same named can own 2 different Authors)
+// or creating new Album object and returning it
+// By creating a new Album it will be added to the listAlbums list
+private Album getAlbumByAuthorAndName(Author author, String name) { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Adding 
+private boolean addSongByStrings(String title, String authorName, String albumName, String categoryName, String votes) { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Comparing all songs in listSongs to the song,
+// returning the song object, or null if not exists same song
+private Song getSongByStrings(Song song) { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Main function, initializing the frame, shows the JFileChooser to get a file with data
+// initializing new lists during opening the program
+public FMain() { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Unnecessery method for developers
+private void printSongs(List<Song> list) { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Unnecessery method for developers
+private void printAlbums() { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Unnecessery method for developers
+private void printAuthors() { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Creating panel(s) (PanelSong) for each song from the list (List<Song>) onto the pointed panel
+// clearing the panel before, and refreshing after
+private void showSongs(List<Song> list, JPanel panel) { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Returning the new list of songs sorted by votes.
+// The new list is created on the basis on listSongs (cloned)
+private List<Song> getSortedListSongsByVotes() { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Returning the new list of songs sorted by category.
+// The new list is created on the basis on listSongs (cloned)
+private List<Song> getSortedListSongsByCategory() { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Refreshing the window (Window: JFrame or JDialog)
+// Used to refresh the window after putting new song's panels into it dynamicly
+private void refreshFrame(Window window) { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Showing new window FRating
+// range argument is used to specify the range of list wanted (top 3, top 10, top x)
+// range specified on 0 will create rating window with full list (top all)
+// argument title specifing the name (title) of the window (JFame)
+private void rating(int range, String title) { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Saving the list from argument into csv file
+// the function setfileExtension(...) will put the extension .csv to filename if missing
+private void saveToCsv(List<Song> list) throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Correct the file extension (adding wanted extension) if missing and returning corrected 
+private File setFileExtenstion(File file, String extDest) { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Saving the list to xml JFileChooser called inside the function
+private void saveToXml(List<Song> list) throws FileNotFoundException, JAXBException { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Loading songs into the specified list and showing them onto the panel
+private void loadSongs(List<Song> list, JPanel panel) { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Action for Clear Votes button
+// Clearing votes of all songs 
+private void clearVotes() { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Rating button action
+private void btnRatingAction() { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Rating button action
+private void btnTop10Action() { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Rating button action
+private void btnTop3Action() { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Rating by category button action
+private void btnCategoryRatingAction() { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Add Song button action
+private void btnAddSongAction() { .. }
+
+--------------------------------------------------------------------------------------------------------------
+
+// Initialize the main form JFrame
+// work here only to make changes in front-end
+private void initialize() { .. }
